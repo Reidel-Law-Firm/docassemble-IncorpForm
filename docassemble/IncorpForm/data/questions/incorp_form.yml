@@ -1,0 +1,607 @@
+---
+include:
+  - docassemble.AssemblyLine:al_package.yml
+---
+metadata:
+  title: |
+    Incorporation
+  short title: |
+    Incorporation
+---
+mandatory: True
+comment: |
+  This contains metadata that will not be overwritten if this YAML file is included in another file. Each file gets its own key in the interview_metadata dictionary.
+  Most keys are not currently used at runtime, other than "allowed courts".
+code: |
+  interview_metadata
+  if not defined("interview_metadata['incorp_form']"):
+    interview_metadata.initializeObject("incorp_form")
+    interview_metadata["incorp_form"].update({
+      "al_weaver_version": "1.0.3",
+      "generated on": "2021-07-28",
+      "title": "Incorporation",
+      "short title": "Incorporation",
+      "description": "TO DO.",
+      "original_form": "",
+      "allowed courts": [
+      ],
+      "categories": [
+      ],        
+      "logic block variable": "interview_order_incorp_form",
+      "attachment block variable": "incorp_form_attachment",
+      "typical role": "na",
+    })
+---
+code: |
+  interview_short_title = "Incorporate Your Organization in Texas"
+---
+code: |
+  al_form_type = 'other_form'
+---
+objects:
+  - organizer: ALPeopleList.using(ask_number=True,target_number=1)
+  - director: ALPeopleList.using(there_are_any=True)
+  - users: ALPeopleList.using(ask_number=True,target_number=1)
+---
+sections:
+  - review_incorp_form: Review your answers
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_incorp_form
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = interview_metadata["incorp_form"]["allowed courts"]
+  nav.set_section('review_incorp_form')
+  user_role = 'na'
+  
+  set_progress(11.11)
+  users.gather()
+  users[0].address.address
+  users[0].ssn
+  set_parts(subtitle=str(users))
+  
+  set_progress(22.22)
+  director.there_are_any = True
+  director.gather(complete_attribute = "gather_complete")
+  
+  set_progress(33.33)
+  #organizer.gather()
+  #organizer[0].address.address
+  
+  set_progress(44.44)
+  filing_entity
+  
+  set_progress(55.56)
+  number_of_shares
+  
+  set_progress(66.67)
+  supplemental
+
+  set_progress(77.78)
+  #effective_date
+  
+  review_incorp_form
+
+  interview_order_incorp_form = True
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  incorp_form_intro
+  interview_order_incorp_form
+  # Save anonymized interview statistics (customize the saved data below)
+  store_variables_snapshot(data={'zip': users[0].address.zip})
+  basic_questions_signature_flow
+  set_progress(100)
+  incorp_form_download
+---
+comment: |
+  This question is used to introduce your interview. Please customize
+id: Incorporation
+continue button field: incorp_form_intro
+question: |
+  Incorporation
+subquestion: |
+  Incorporation information. TODO.
+---
+generic object: ALIndividual
+template: users[0].person_type_label
+content: |
+  Are you a person or an organization?
+---
+generic object: ALIndividual
+template: x.business_name_label
+content: |
+  Name of organization
+---
+generic object: ALIndividual
+template: x.business_choice_label
+content: |
+  Organization
+---
+id: users name
+sets:
+    - users[0].name.first
+    - users[0].name.last
+question:  |
+  Your Basic Information
+fields:
+  - code: |
+      users[0].name_fields(person_or_business='unsure')
+  - Who is the authorized person?: authorized_person
+    show if:
+      variable: users[0].person_type
+      is: business
+---
+generic object: ALIndividual
+code: |
+  x.name.first
+  x.address.address
+  x.gather_complete = True
+---
+id: persons address
+generic object: ALIndividual
+question: |
+  What is ${ x.possessive('address') }?
+fields:
+  - Street address: x.address.address
+    address autocomplete: True
+  - Unit: x.address.unit
+    required: False
+  - City: x.address.city
+  - State: x.address.state
+    default:  TX  
+    code: |
+      states_list()   
+  - Zip: x.address.zip
+---
+id: your address
+question: |
+  What is your address?
+subquestion: |
+  What address should the court use to mail papers to you?
+fields:
+  - Street address: users[0].address.address
+    address autocomplete: True
+  - Unit: users[0].address.unit
+    required: False
+  - City: users[0].address.city
+  - State: users[0].address.state
+    datatype: combobox
+    code: |
+      states_list()
+    default: TX      
+  - Zip: users[0].address.zip
+    required: True
+---
+id: ssn
+question: |
+  What is your SSN or ITIN?
+fields:
+  - SSN or ITIN: users[0].ssn
+---
+generic object: ALIndividual
+id: any other directors
+question: |
+  Are there any other directors?
+subquestion: |
+  % if len(director.elements) > 1:  
+  So far you have told us about ${comma_and_list(director.complete_elements())}.
+  % endif  
+yesno: director.there_is_another 
+---
+id: What is the filing entitys name
+question: |
+  What would you like the name of your corporation to be?
+fields:
+  - "Name": filing_entity
+    maxlength: 85
+  - "Secondary name": filing_entity_secondary
+    help: |
+      If the first name if unavailable we will use this secondary name for your corporation.
+---
+id: Article 4 Authorized Shares
+question: |
+  Article 4 - Authorized Shares
+fields:
+  - "Total number of shares": number_of_shares
+    datatype: number
+  - no label: shares
+    datatype: radio
+    choices:
+      - Par value per share: par_value
+      - No par value: no_par_value
+  - "Par value per share": share_par_value
+    datatype: currency
+    min: 0
+    js show if: |
+      val("shares") == "par_value"   
+---
+id: Supplemental Provisions Information
+question: |
+  Supplemental Provisions/Information
+fields:
+  - "no label": supplemental
+    input type: area
+    maxlength: 935
+    required: False
+#---
+#id: Effective Date
+#question: |
+#  Effective Date
+#fields:
+#  - no label: effective_date
+#    datatype: radio
+#    choices:
+#      - When the document is filed by the secretary of state: effective_SOS
+#      - After the document is filed by the secretary of state, but not more than ninety (90) days from the date of signing: effective_before_90
+#      - Upon the occurrence of a future event or fact: effective_in_future
+#  - "Delayed date": date_effective_before_90
+#    datatype: date
+#    js show if: |
+#      val("effective_date") == "effective_before_90"
+#  - "90th day after date of signing": signing_date_plus_90
+#    datatype: date
+#    js show if: |
+#      val("effective_date") == "effective_in_future"  
+#  - "What event or fact will cause the document to take effect?": effective_event_explanation
+#    datatype: area
+#    maxlength: 252
+#    js show if: |
+#      val("effective_date") == "effective_in_future"  
+---
+id: preview incorp_form
+question: |
+  Preview your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.   
+  
+  ${ al_recipient_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Make changes" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_incorp_form'), label='Make changes', color='info') }
+  
+  Remember to come back to this window to continue and sign your form.
+continue button field: incorp_form_preview_question    
+---
+id: incorp form review screen
+continue button field: review_incorp_form
+question: |
+  Review your answers
+review:
+  - Edit: filing_entity
+    button: |
+      **Name**:
+      ${ filing_entity }
+  - Edit: number_of_shares
+    button: |
+      **Number**:
+      ${ number_of_shares }
+  - Edit: par_value
+    button: |
+      **Par value**:
+      ${ word(yesno(par_value)) }
+  - Edit: share_par_value
+    button: |
+      **Share par value**:
+      ${ currency(share_par_value) }
+  - Edit: no_par_value
+    button: |
+      **No par value**:
+      ${ word(yesno(no_par_value)) }
+  - Edit: supplemental
+    button: |
+      **Supplemental**:
+      ${ single_paragraph(supplemental) }
+  - Edit: effective_SOS
+    button: |
+      **Effective sos**:
+      ${ word(yesno(effective_SOS)) }
+  - Edit: effective_before_90
+    button: |
+      **Effective before 90**:
+      ${ word(yesno(effective_before_90)) }
+  - Edit: date_effective_before_90
+    button: |
+      **Date effective before 90**:
+      ${ date_effective_before_90 }
+  - Edit: effective_in_future
+    button: |
+      **Effective in future**:
+      ${ word(yesno(effective_in_future)) }
+  - Edit: signing_date_plus_90
+    button: |
+      **Signing date plus 90**:
+      ${ signing_date_plus_90 }
+  - Edit: effective_event_explanation
+    button: |
+      **Effective event explanation**:
+      > ${ single_paragraph(effective_event_explanation) }
+  - Edit: users.revisit
+    button: |
+      **Registered Agent:**
+
+      % for item in users:
+        * ${ item.name}
+        * ${ item.address }
+      % endfor
+  - Edit: director.revisit
+    button: |
+      **Directors:**
+
+      % for item in director:
+        * ${ item.name}
+        * ${ item.address }
+      % endfor
+#--- ADDED BUT NEED TO DISCUSS
+#id: Consent of Registered Agent review screen
+#event: review_Consent_of_Registered_Agent
+#question: |
+#  Review your answers
+#review:
+#  - Edit: filing_entity
+#    button: |
+#      **Filing entity**:
+#      ${ filing_entity }
+#  - Edit: effective_date
+#    button: |
+#      **Date of effective**:
+#      ${ effective_date }
+#  - Edit: filing_entity_1
+#    button: |
+#      **Filing entity 1**:
+#      ${ filing_entity_1 }
+#  - Edit: authorized_person
+#    button: |
+#      **Authorized Person**:
+#      ${ authorized_person }
+#  - Edit: effective_date_1
+#    button: |
+#      **Effective date 1**:
+#      ${ effective_date_1 }
+#  - Edit: users.revisit
+#    button: |
+#      **Users**
+#
+#      % for item in users:
+#        * ${ item }
+#      % endfor
+#  - Edit: signature0
+#    button: |
+#      **signature**:
+#      ${ signature0 }
+#  - Edit: signature1
+#    button: |
+#      **signature1**:
+#      ${ signature1 }
+---
+continue button field: users.revisit
+question: |
+  Edit users
+subquestion: |
+  ${ users.table }
+
+  ${ users.add_action() }
+---
+table: users.table
+rows: users
+columns:
+  - name: |
+      row_item.name.full() if defined("row_item.name.suffix") else ""
+  - address: |
+      row_item.address.block() if defined("row_item.address.zip") else ""
+edit:
+  - name.suffix
+  - address.zip
+confirm: True
+
+---
+continue button field: director.revisit
+question: |
+  Edit director
+subquestion: |
+  ${ director.table }
+
+  ${ director.add_action() }
+---
+table: director.table
+rows: director
+columns:
+  - address: |
+      row_item.address.block() if defined("row_item.address.address") else ""
+  - name: |
+      row_item.name.full() if defined("row_item.name.suffix") else ""
+edit:
+  - address.address
+  - name.suffix
+confirm: True
+---
+continue button field: organizer.revisit
+question: |
+  Edit organizer
+subquestion: |
+  ${ organizer.table }
+
+  ${ organizer.add_action() }
+---
+table: organizer.table
+rows: organizer
+columns:
+  - address: |
+      row_item.address.block() if defined("row_item.address.state") else ""
+  - name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+edit:
+  - address.state
+  - name.first
+confirm: True
+---
+id: download incorp_form
+event: incorp_form_download
+question: |
+  Your form is ready to download.
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Make changes" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_incorp_form'), label='Make changes', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+progress: 100
+---
+code: |
+  signature_fields = ['users[0].signature']
+---
+objects:
+  - incorp_form_attachment: ALDocument.using(title="Incorporation Form", filename="201_boc.pdf", enabled=True, has_addendum=False)
+  - incorp_form_attachment_addendum: ALDocument.using(title="Addendum", filename="Addendum.pdf", enabled=True, has_addendum=False)
+  - Consent_of_Registered_Agent_attachment: ALDocument.using(title="Consent of registered agent", filename="Consent_of_Registered_Agent.pdf", enabled=True, has_addendum=False)
+---
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[incorp_form_attachment, incorp_form_attachment_addendum, Consent_of_Registered_Agent_attachment], filename="incorp_form_package.pdf", title="All forms to download for your records")
+  - al_recipient_bundle: ALDocumentBundle.using(elements=[incorp_form_attachment, incorp_form_attachment_addendum, Consent_of_Registered_Agent_attachment], filename="incorp_form_package.pdf", title="All forms to download for your records")
+---
+attachment: 
+  - name: incorp_form_attachment_addendum
+    variable name: incorp_form_attachment_addendum[i]  
+    filename: incorp_form_attachment_addendum
+    skip undefined: True
+    docx template file: addendum.docx
+---
+attachments:
+  - name: Consent of Registered Agent attachment
+    filename: Consent_of_Registered_Agent     
+    variable name: Consent_of_Registered_Agent_attachment[i]
+    skip undefined: True
+    pdf template file: Consent_of_Registered_Agent.pdf
+    fields:
+      - "user_name_full": |
+          % if users[0].person_type == "ALIndividual":
+          ${ users[0] }
+          % endif
+      - "user_name": |
+          % if users[0].person_type == "business":
+          ${ users[0] }
+          % endif
+      - "filing_entity": |
+          % if users[0].person_type == "ALIndividual":
+          ${ filing_entity }
+          % endif
+      - "effective_date": |
+          % if users[0].person_type == "ALIndividual":
+          ${ today(format='M/d/YYYY') }
+          % endif
+      - "filing_entity_1": |
+          % if users[0].person_type == "business":
+          ${ filing_entity }
+          % endif
+      - "authorized_person": |
+          % if users[0].person_type == "business":
+          ${ authorized_person }
+          % endif
+      - "effective_date_1": |
+          % if users[0].person_type == "business":
+          ${ today(format='M/d/YYYY') }
+          % endif
+      - "signature0": |
+          % if users[0].person_type == "ALIndividual":
+          ${ users[0].signature if i == 'final' else '' }
+          % endif
+      - "signature1": |
+          % if users[0].person_type == "business":
+          ${ users[0].signature if i == 'final' else '' }
+          % endif
+  - name: incorp form attachment
+    filename: incorp_form     
+    variable name: incorp_form_attachment[i]        
+    skip undefined: True
+    pdf template file: 201_boc.pdf
+    fields:
+      - "filing_entity": ${ filing_entity }
+      - "user_is_organization": ${ users[0].person_type == "business" }
+      - "user_is_individual": ${ users[0].person_type == "ALIndividual" }
+      - "user_name": |
+          % if users[0].person_type == "business":
+          ${ users[0] }
+          % endif
+      - "user_name_first": |
+          % if users[0].person_type == "ALIndividual":
+          ${ users[0].name.first }
+          % endif
+      - "user_name_middle": |
+          % if users[0].person_type == "ALIndividual":
+          ${ users[0].name.middle }
+          % endif
+      - "user_name_last": |
+          % if users[0].person_type == "ALIndividual":
+          ${ users[0].name.last }
+          % endif
+      - "user_name_suffix": |
+          % if users[0].person_type == "ALIndividual":
+          ${ users[0].name.suffix }
+          % endif
+      - "user_address_street": ${ users[0].address.address }
+      - "user_address_city": ${ users[0].address.city }
+      - "user_address_zip": ${ users[0].address.zip }
+      - "director_name_first": ${ director[0].name.first }
+      - "director_name_middle": ${ director[0].name.middle }
+      - "director_name_last": ${ director[0].name.last }
+      - "director_name_suffix": ${ director[0].name.suffix }
+      - "director_address_street": ${ director[0].address.address }
+      - "director_address_city": ${ director[0].address.city }
+      - "director_address_state": ${ director[0].address.state }
+      - "director_address_zip": ${ director[0].address.zip }
+      - "director_address_country": ${ director[0].address.country }
+      - "director1_name_first": ${ director[1].name.first }
+      - "director1_name_middle": ${ director[1].name.middle }
+      - "director1_name_last": ${ director[1].name.last }
+      - "director1_name_suffix": ${ director[1].name.suffix }
+      - "director1_address_street": ${ director[1].address.address }
+      - "director1_address_city": ${ director[1].address.city }
+      - "director1_address_state": ${ director[1].address.state }
+      - "director1_address_zip": ${ director[1].address.zip }
+      - "director1_address_country": ${ director[1].address.country }
+      - "director2_name_first": ${ director[2].name.first }
+      - "director2_name_middle": ${ director[2].name.middle }
+      - "director2_name_last": ${ director[2].name.last }
+      - "director2_name_suffix": ${ director[2].name.suffix }
+      - "director2_address_street": ${ director[2].address.address }
+      - "director2_address_city": ${ director[2].address.city }
+      - "director2_address_state": ${ director[2].address.state }
+      - "director2_address_zip": ${ director[2].address.zip }
+      - "director2_address_country": ${ director[2].address.country }
+      - "organizer_name_full": |
+          Schuyler Reidel - Reidel Law Firm
+      - "organizer_address_street": | 
+          527 21st St. #90
+      - "organizer_address_city": |
+          Galveston
+      - "organizer_address_state": |
+          Texas
+      - "organizer_address_zip": |
+          77550
+      - "number_of_shares": ${ currency(number_of_shares) }
+      - "par_value": ${ shares == 'par_value' }
+      - "share_par_value": ${ currency(share_par_value) }
+      - "no_par_value": ${ shares == 'no_par_value' }
+      - "supplemental": ${ supplemental }
+      - "effective_SOS": ${True}
+      #- "effective_before_90": ${ effective_date == 'effective_before_90' }
+      #- "date_effective_before_90": ${ date_effective_before_90 }
+      #- "effective_in_future": ${ effective_date == 'effective_in_future' }
+      - "signing_date_plus_90": ${ signing_date_plus_90 }
+      - "effective_event_explanation": ${ effective_event_explanation }
+      - "effective_date": ${ today(format='M/d/YYYY') }

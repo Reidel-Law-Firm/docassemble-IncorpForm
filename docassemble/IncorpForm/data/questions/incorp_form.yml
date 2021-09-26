@@ -476,6 +476,17 @@ subquestion: |
 
   ${ organizer.add_action() }
 ---
+table: shareholders_ledger_table
+rows: shareholder
+columns:
+  - Name of Shareholder: row_item.name.full()
+  - Place of Residence: row_item.address.block()
+  - Original shareholder or transferred from: |
+      "Original Issue"
+  - Capital contribution or amount paid: |
+      "N/A"
+  - Number of shares held: row_item.shares
+---
 table: organizer.table
 rows: organizer
 columns:
@@ -499,11 +510,11 @@ subquestion: |
 
   ${ action_button_html(url_action('review_incorp_form'), label='Make changes', color='info') }
   
-  
   ${ al_user_bundle.download_list_html() }
-  
 
   ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+  
+  ${ shareholders_ledger_table }
 
 progress: 100
 ---

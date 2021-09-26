@@ -42,6 +42,7 @@ objects:
   - organizer: ALPeopleList.using(ask_number=True,target_number=1)
   - director: ALPeopleList.using(there_are_any=True)
   - users: ALPeopleList.using(ask_number=True,target_number=1)
+  - shareholder: ALPeopleList.using(there_are_any=True)
 ---
 sections:
   - review_incorp_form: Review your answers
@@ -56,32 +57,39 @@ code: |
   nav.set_section('review_incorp_form')
   user_role = 'na'
   
-  set_progress(11.11)
+  set_progress(11.00)
   users.gather()
   users[0].address.address
   users[0].ssn
   set_parts(subtitle=str(users))
   
-  set_progress(22.22)
+  set_progress(22.00)
+  shareholder.there_are_any = True
+  shareholder.gather(complete_attribute = "gather_complete_1")
+ 
+  set_progress(33.00)
+  needs_formal_reimbursement
+  
+  set_progress(44.00)
   director.there_are_any = True
   director.gather(complete_attribute = "gather_complete")
   
-  set_progress(33.33)
   #organizer.gather()
   #organizer[0].address.address
   
-  set_progress(44.44)
+  set_progress(55.00)
   filing_entity
   
-  set_progress(55.56)
+  set_progress(66.00)
   number_of_shares
   
-  set_progress(66.67)
+  set_progress(77.00)
   supplemental
 
-  set_progress(77.78)
+  set_progress(88.00)
   #effective_date
   
+  set_progress(95.00)
   review_incorp_form
 
   interview_order_incorp_form = True
@@ -142,6 +150,21 @@ generic object: ALIndividual
 code: |
   x.name.first
   x.address.address
+  x.shares
+  x.gather_complete_1 = True
+---
+id: shareholders shares
+generic object: ALIndividual
+question: |
+  What is ${ x }'s number of shares?
+fields:
+  - Shares: x.shares
+    datatype: integer
+---
+generic object: ALIndividual
+code: |
+  x.name.first
+  x.address.address
   x.gather_complete = True
 ---
 id: persons address
@@ -184,6 +207,28 @@ question: |
   What is your SSN or ITIN?
 fields:
   - SSN or ITIN: users[0].ssn
+---
+generic object: ALIndividual
+id: any other shareholders
+question: |
+  Are there any other shareholders?
+subquestion: |
+  % if len(shareholder.elements) > 1:  
+  So far you have told us about ${comma_and_list(shareholder.complete_elements())}.
+  % endif  
+yesno: shareholder.there_is_another 
+---
+generic object: ALIndividual
+question: |
+  Do you need a formal reimbursement?
+fields:
+  - "Do you need a formal reimbursement?": needs_formal_reimbursement
+    datatype: yesnoradio
+  - "How much do you need reimbursed?": reimbursement_amount
+    datatype: currency
+    show if: needs_formal_reimbursement
+  - note: |
+      You will need to attach an itemized receipt to the minutes. 
 ---
 generic object: ALIndividual
 id: any other directors
@@ -469,10 +514,11 @@ objects:
   - incorp_form_attachment: ALDocument.using(title="Incorporation Form", filename="201_boc.pdf", enabled=True, has_addendum=False)
   - incorp_form_attachment_addendum: ALDocument.using(title="Addendum", filename="Addendum.pdf", enabled=True, has_addendum=False)
   - Consent_of_Registered_Agent_attachment: ALDocument.using(title="Consent of registered agent", filename="Consent_of_Registered_Agent.pdf", enabled=True, has_addendum=False)
+  - first_meeting_minutes: ALDocument.using(title="First Meeting Minutes", filename="First_Meeting_Minutes.pdf", enabled=True, has_addendum=False)
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[incorp_form_attachment, incorp_form_attachment_addendum, Consent_of_Registered_Agent_attachment], filename="incorp_form_package.pdf", title="All forms to download for your records")
-  - al_recipient_bundle: ALDocumentBundle.using(elements=[incorp_form_attachment, incorp_form_attachment_addendum, Consent_of_Registered_Agent_attachment], filename="incorp_form_package.pdf", title="All forms to download for your records")
+  - al_user_bundle: ALDocumentBundle.using(elements=[incorp_form_attachment, incorp_form_attachment_addendum, Consent_of_Registered_Agent_attachment, first_meeting_minutes], filename="incorp_form_package.pdf", title="All forms to download for your records")
+  - al_recipient_bundle: ALDocumentBundle.using(elements=[incorp_form_attachment, incorp_form_attachment_addendum, Consent_of_Registered_Agent_attachment, first_meeting_minutes], filename="incorp_form_package.pdf", title="All forms to download for your records")
 ---
 attachment: 
   - name: incorp_form_attachment_addendum
@@ -480,6 +526,13 @@ attachment:
     filename: incorp_form_attachment_addendum
     skip undefined: True
     docx template file: addendum.docx
+---
+attachment: 
+  - name: first_meeting_minutes
+    variable name: first_meeting_minutes[i]  
+    filename: first_meeting_minutes
+    skip undefined: True
+    docx template file: first_meeting_minutes.docx
 ---
 attachments:
   - name: Consent of Registered Agent attachment

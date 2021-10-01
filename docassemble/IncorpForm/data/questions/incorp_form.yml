@@ -8,7 +8,14 @@ metadata:
   short title: |
     Incorporation
   logo: |
-    <img src="/packagestatic/docassemble.IncorpForm/Reidel_logo.svg"><div class="title"></div>    
+    <img height="50px" class="ma_icon" src="/packagestatic/docassemble.IncorpForm/Reidel_logo.svg"><div class="title"></div>
+  title url: |
+    https://www.reidellawfirm.com/
+---
+features:
+  bootstrap theme: bootstrap.min.css
+  css:
+    - styles.css
 ---
 mandatory: True
 comment: |

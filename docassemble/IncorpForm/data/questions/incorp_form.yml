@@ -88,6 +88,7 @@ code: |
   
   set_progress(55.00)
   filing_entity
+  scorp
   
   set_progress(66.00)
   number_of_shares
@@ -238,6 +239,11 @@ fields:
     show if: needs_formal_reimbursement
   - note: |
       You will need to attach an itemized receipt to the minutes. 
+---
+generic object: ALIndividual
+question: |
+  Are you incorporating as an S-Corp?
+yesno: scorp
 ---
 generic object: ALIndividual
 id: any other directors
@@ -537,11 +543,12 @@ objects:
   - incorp_form_attachment_addendum: ALDocument.using(title="Addendum", filename="Addendum.pdf", enabled=True, has_addendum=False)
   - Consent_of_Registered_Agent_attachment: ALDocument.using(title="Consent of registered agent", filename="Consent_of_Registered_Agent.pdf", enabled=True, has_addendum=False)
   - first_meeting_minutes: ALDocument.using(title="First Meeting Minutes", filename="First_Meeting_Minutes.pdf", enabled=True, has_addendum=False)
+  - bylaws: ALDocument.using(title="Bylaws", filename="Bylaws.pdf", enabled=True, has_addendum=False)
 #  - shareholders_ledger: ALDocument.using(title="Shareholders Ledger", filename="shareholders_ledger", enabled=True, has_addendum=False)
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[incorp_form_attachment, incorp_form_attachment_addendum, Consent_of_Registered_Agent_attachment, first_meeting_minutes], filename="incorp_form_package.pdf", title="All forms to download for your records")
-  - al_recipient_bundle: ALDocumentBundle.using(elements=[incorp_form_attachment, incorp_form_attachment_addendum, Consent_of_Registered_Agent_attachment, first_meeting_minutes], filename="incorp_form_package.pdf", title="All forms to download for your records")
+  - al_user_bundle: ALDocumentBundle.using(elements=[incorp_form_attachment, incorp_form_attachment_addendum, Consent_of_Registered_Agent_attachment, first_meeting_minutes, bylaws], filename="incorp_form_package.pdf", title="All forms to download for your records")
+  - al_recipient_bundle: ALDocumentBundle.using(elements=[incorp_form_attachment, incorp_form_attachment_addendum, Consent_of_Registered_Agent_attachment, first_meeting_minutes, bylaws], filename="incorp_form_package.pdf", title="All forms to download for your records")
 ---
 attachment: 
   - name: incorp_form_attachment_addendum
@@ -556,6 +563,13 @@ attachment:
     filename: first_meeting_minutes
     skip undefined: True
     docx template file: first_meeting_minutes.docx
+---
+attachment: 
+  - name: bylaws
+    variable name: bylaws[i]  
+    filename: bylaws
+    skip undefined: True
+    docx template file: bylaws.docx
 ---
 attachments:
   - name: Consent of Registered Agent attachment

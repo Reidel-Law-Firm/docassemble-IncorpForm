@@ -52,6 +52,7 @@ objects:
   - director: ALPeopleList.using(there_are_any=True)
   - users: ALPeopleList.using(ask_number=True,target_number=1)
   - shareholder: ALPeopleList.using(there_are_any=True)
+  - reimbursement: DAList.using(object_type=DAObject, there_are_any=True)
 ---
 sections:
   - review_incorp_form: Review your answers
@@ -77,7 +78,9 @@ code: |
   shareholder.gather(complete_attribute = "gather_complete_1")
  
   set_progress(33.00)
-  needs_formal_reimbursement
+  if needs_formal_reimbursement:
+     reimbursement[0].what
+     reimbursement_amount = sum(r.amount for r in reimbursement)
   
   set_progress(44.00)
   director.there_are_any = True
@@ -232,14 +235,20 @@ yesno: shareholder.there_is_another
 generic object: ALIndividual
 question: |
   Do you need a formal reimbursement?
-fields:
-  - "Do you need a formal reimbursement?": needs_formal_reimbursement
-    datatype: yesnoradio
-  - "How much do you need reimbursed?": reimbursement_amount
+yesno: needs_formal_reimbursement
+---
+id: claims
+question: |
+  Your formal reimbursement
+subquestion: |
+  You said you need a formal reimbursement. 
+  
+  Below you can itemize this reimbursement by selecting "${word("Add another")}".
+fields: 
+  - Describe your specific reimbursement: reimbursement[i].what
+  - How much would you like reimbursed for this?: reimbursement[i].amount
     datatype: currency
-    show if: needs_formal_reimbursement
-  - note: |
-      You will need to attach an itemized receipt to the minutes. 
+list collect: True
 ---
 generic object: ALIndividual
 question: |

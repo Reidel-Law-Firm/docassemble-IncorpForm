@@ -101,7 +101,7 @@ code: |
   
   set_progress(95.00)
   review_incorp_form
-
+  
   interview_order_incorp_form = True
 ---
 ###################### Main order ######################
@@ -115,6 +115,7 @@ code: |
   # Save anonymized interview statistics (customize the saved data below)
   store_variables_snapshot(data={'zip': users[0].address.zip})
   basic_questions_signature_flow
+  loading_warning_screen
   set_progress(100)
   incorp_form_download
 ---
@@ -330,6 +331,15 @@ subquestion: |
   
   Remember to come back to this window to continue and sign your form.
 continue button field: incorp_form_preview_question    
+--- 
+id: loading warning screen
+question: |
+  You have now finished answering all of the interview questions. 
+subquestion: |
+  Select "Next" to download your forms. 
+  
+  It may take a few seconds to load.  
+continue button field: loading_warning_screen
 ---
 id: incorp form review screen
 continue button field: review_incorp_form

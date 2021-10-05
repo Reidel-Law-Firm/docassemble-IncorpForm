@@ -245,8 +245,8 @@ subquestion: |
   
   Below you can itemize this reimbursement by selecting "${word("Add another")}".
 fields: 
-  - Describe your specific reimbursement: reimbursement[i].what
-  - How much would you like reimbursed for this?: reimbursement[i].amount
+  - Describe your formation cost: reimbursement[i].what
+  - How much is this formation cost?: reimbursement[i].amount
     datatype: currency
 list collect: True
 ---

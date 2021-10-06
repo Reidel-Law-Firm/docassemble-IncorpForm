@@ -560,21 +560,14 @@ objects:
   - Consent_of_Registered_Agent_attachment: ALDocument.using(title="Consent of registered agent", filename="Consent_of_Registered_Agent.pdf", enabled=True, has_addendum=False)
   - first_meeting_minutes: ALDocument.using(title="First Meeting Minutes", filename="First_Meeting_Minutes.pdf", enabled=True, has_addendum=False)
   - bylaws: ALDocument.using(title="Bylaws", filename="Bylaws.pdf", enabled=True, has_addendum=False)
-  - shareholders_ledger: ALDocument.using(title="Shareholders Ledger", filename="shareholders_ledger", enabled=True, has_addendum=False)
+  - shareholders_ledger: ALTableDocument.using(title="Shareholders Ledger", filename="shareholders_ledger", enabled=True)
 ---
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[incorp_form_attachment, incorp_form_attachment_addendum, Consent_of_Registered_Agent_attachment, first_meeting_minutes, bylaws, shareholders_ledger], filename="incorp_form_package.pdf", title="All forms to download for your records")
   - al_recipient_bundle: ALDocumentBundle.using(elements=[incorp_form_attachment, incorp_form_attachment_addendum, Consent_of_Registered_Agent_attachment, first_meeting_minutes, bylaws, shareholders_ledger], filename="incorp_form_package.pdf", title="All forms to download for your records")
 ---
 code: |
-  shareholders_ledger[i] = shareholders_ledger_table.export('shareholders_ledger.xlsx', title='shareholders_ledger').url_for()
-#---
-#attachment: 
-#  - name: shareholders_ledger
-#    variable name: shareholders_ledger[i] = shareholders_ledger_table.export('shareholders_ledger.xlsx', title='shareholders_ledger').url_for()
-#    filename: shareholders_ledger
-#    skip undefined: True
-#    #docx template file: shareholders_ledger.docx
+  shareholders_ledger = shareholders_ledger.table
 ---
 attachment: 
   - name: incorp_form_attachment_addendum

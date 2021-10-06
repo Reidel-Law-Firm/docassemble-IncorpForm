@@ -361,7 +361,7 @@ review:
       ${ filing_entity }
   - Edit: number_of_shares
     button: |
-      **Number**:
+      **Number of shares**:
       ${ number_of_shares }
   - Edit: par_value
     button: |
@@ -408,58 +408,26 @@ review:
       **Registered Agent:**
 
       % for item in users:
-        * ${ item.name}
-        * ${ item.address }
+        1. ${ item.name }, ${ item.address }
       % endfor
+  - Edit: authorized_person
+    button: |
+      **Authorized Person**:
+      ${ authorized_person }
   - Edit: director.revisit
     button: |
       **Directors:**
 
       % for item in director:
-        * ${ item.name}
-        * ${ item.address }
+        1. ${ item.name }, ${ item.address }
       % endfor
-#--- ADDED BUT NEED TO DISCUSS
-#id: Consent of Registered Agent review screen
-#event: review_Consent_of_Registered_Agent
-#question: |
-#  Review your answers
-#review:
-#  - Edit: filing_entity
-#    button: |
-#      **Filing entity**:
-#      ${ filing_entity }
-#  - Edit: effective_date
-#    button: |
-#      **Date of effective**:
-#      ${ effective_date }
-#  - Edit: filing_entity_1
-#    button: |
-#      **Filing entity 1**:
-#      ${ filing_entity_1 }
-#  - Edit: authorized_person
-#    button: |
-#      **Authorized Person**:
-#      ${ authorized_person }
-#  - Edit: effective_date_1
-#    button: |
-#      **Effective date 1**:
-#      ${ effective_date_1 }
-#  - Edit: users.revisit
-#    button: |
-#      **Users**
-#
-#      % for item in users:
-#        * ${ item }
-#      % endfor
-#  - Edit: signature0
-#    button: |
-#      **signature**:
-#      ${ signature0 }
-#  - Edit: signature1
-#    button: |
-#      **signature1**:
-#      ${ signature1 }
+  - Edit: shareholder.revisit
+    button: |
+      **Shareholders:**
+
+      % for item in shareholder:
+        1. ${ item.name }, ${ item.address }, ${ item.shares }
+      % endfor
 ---
 continue button field: users.revisit
 question: |
@@ -492,6 +460,26 @@ subquestion: |
 ---
 table: director.table
 rows: director
+columns:
+  - address: |
+      row_item.address.block() if defined("row_item.address.address") else ""
+  - name: |
+      row_item.name.full() if defined("row_item.name.suffix") else ""
+edit:
+  - address.address
+  - name.suffix
+confirm: True
+---
+continue button field: shareholder.revisit
+question: |
+  Edit shareholder
+subquestion: |
+  ${ shareholder.table }
+
+  ${ shareholder.add_action() }
+---
+table: shareholder.table
+rows: shareholder
 columns:
   - address: |
       row_item.address.block() if defined("row_item.address.address") else ""

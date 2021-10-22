@@ -566,9 +566,6 @@ objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[incorp_form_attachment, incorp_form_attachment_addendum, Consent_of_Registered_Agent_attachment, first_meeting_minutes, bylaws, shareholders_ledger], filename="incorp_form_package.pdf", title="All forms to download for your records")
   - al_recipient_bundle: ALDocumentBundle.using(elements=[incorp_form_attachment, incorp_form_attachment_addendum, Consent_of_Registered_Agent_attachment, first_meeting_minutes, bylaws, shareholders_ledger], filename="incorp_form_package.pdf", title="All forms to download for your records")
 ---
-code: |
-  shareholders_ledger = shareholders_ledger.table
----
 attachment: 
   - name: incorp_form_attachment_addendum
     variable name: incorp_form_attachment_addendum[i]  

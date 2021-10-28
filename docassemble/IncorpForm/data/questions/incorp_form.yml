@@ -379,36 +379,13 @@ review:
     button: |
       **Supplemental**:
       ${ single_paragraph(supplemental) }
-  - Edit: effective_SOS
-    button: |
-      **Effective sos**:
-      ${ word(yesno(effective_SOS)) }
-  - Edit: effective_before_90
-    button: |
-      **Effective before 90**:
-      ${ word(yesno(effective_before_90)) }
-  - Edit: date_effective_before_90
-    button: |
-      **Date effective before 90**:
-      ${ date_effective_before_90 }
-  - Edit: effective_in_future
-    button: |
-      **Effective in future**:
-      ${ word(yesno(effective_in_future)) }
-  - Edit: signing_date_plus_90
-    button: |
-      **Signing date plus 90**:
-      ${ signing_date_plus_90 }
-  - Edit: effective_event_explanation
-    button: |
-      **Effective event explanation**:
-      > ${ single_paragraph(effective_event_explanation) }
   - Edit: users.revisit
     button: |
       **Registered Agent:**
 
       % for item in users:
-        1. ${ item.name }, ${ item.address }
+        1. ${ item.name }
+        ${ item.address }
       % endfor
   - Edit: authorized_person
     button: |
@@ -417,16 +394,19 @@ review:
   - Edit: director.revisit
     button: |
       **Directors:**
-
+       
       % for item in director:
-        1. ${ item.name }, ${ item.address }
+        1. ${ item.name }
+        ${ item.address }
       % endfor
   - Edit: shareholder.revisit
     button: |
       **Shareholders:**
 
       % for item in shareholder:
-        1. ${ item.name }, ${ item.address }, ${ item.shares }
+        1. ${ item.name }
+        ${ item.address }
+        ${ item.shares } shares
       % endfor
 ---
 continue button field: users.revisit

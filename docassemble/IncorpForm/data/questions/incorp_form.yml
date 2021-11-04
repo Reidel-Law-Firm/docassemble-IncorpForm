@@ -359,22 +359,6 @@ review:
     button: |
       **Name**:
       ${ filing_entity }
-  - Edit: number_of_shares
-    button: |
-      **Number of shares**:
-      ${ number_of_shares }
-  - Edit: par_value
-    button: |
-      **Par value**:
-      ${ word(yesno(par_value)) }
-  - Edit: share_par_value
-    button: |
-      **Share par value**:
-      ${ currency(share_par_value) }
-  - Edit: no_par_value
-    button: |
-      **No par value**:
-      ${ word(yesno(no_par_value)) }
   - Edit: supplemental
     button: |
       **Supplemental**:
@@ -383,9 +367,10 @@ review:
     button: |
       **Registered Agent:**
 
+      Name | Address 
+      -----------|------------
       % for item in users:
-        1. ${ item.name }
-        ${ item.address }
+      ${ item.name } | ${ item.address }
       % endfor
   - Edit: authorized_person
     button: |
@@ -394,20 +379,23 @@ review:
   - Edit: director.revisit
     button: |
       **Directors:**
-       
+      
+      Name | Address 
+      -----------|------------
       % for item in director:
-        1. ${ item.name }
-        ${ item.address }
+      ${ item.name } | ${ item.address }
       % endfor
+      
   - Edit: shareholder.revisit
     button: |
       **Shareholders:**
-
+      
+      Name | Address | Shares
+      -----------|------------|------------
       % for item in shareholder:
-        1. ${ item.name }
-        ${ item.address }
-        ${ item.shares } shares
+      ${ item.name } | ${ item.address } | ${ item.shares }
       % endfor
+      
 ---
 continue button field: users.revisit
 question: |

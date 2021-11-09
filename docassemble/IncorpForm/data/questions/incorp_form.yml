@@ -359,107 +359,43 @@ review:
     button: |
       **Name**:
       ${ filing_entity }
-  - Edit: number_of_shares
-    button: |
-      **Number**:
-      ${ number_of_shares }
-  - Edit: par_value
-    button: |
-      **Par value**:
-      ${ word(yesno(par_value)) }
-  - Edit: share_par_value
-    button: |
-      **Share par value**:
-      ${ currency(share_par_value) }
-  - Edit: no_par_value
-    button: |
-      **No par value**:
-      ${ word(yesno(no_par_value)) }
   - Edit: supplemental
     button: |
       **Supplemental**:
       ${ single_paragraph(supplemental) }
-  - Edit: effective_SOS
-    button: |
-      **Effective sos**:
-      ${ word(yesno(effective_SOS)) }
-  - Edit: effective_before_90
-    button: |
-      **Effective before 90**:
-      ${ word(yesno(effective_before_90)) }
-  - Edit: date_effective_before_90
-    button: |
-      **Date effective before 90**:
-      ${ date_effective_before_90 }
-  - Edit: effective_in_future
-    button: |
-      **Effective in future**:
-      ${ word(yesno(effective_in_future)) }
-  - Edit: signing_date_plus_90
-    button: |
-      **Signing date plus 90**:
-      ${ signing_date_plus_90 }
-  - Edit: effective_event_explanation
-    button: |
-      **Effective event explanation**:
-      > ${ single_paragraph(effective_event_explanation) }
   - Edit: users.revisit
     button: |
       **Registered Agent:**
 
+      Name | Address 
+      -----------|------------
       % for item in users:
-        * ${ item.name}
-        * ${ item.address }
+      ${ item.name } | ${ item.address }
       % endfor
+  - Edit: authorized_person
+    button: |
+      **Authorized Person**:
+      ${ authorized_person }
   - Edit: director.revisit
     button: |
       **Directors:**
-
+      
+      Name | Address 
+      -----------|------------
       % for item in director:
-        * ${ item.name}
-        * ${ item.address }
+      ${ item.name } | ${ item.address }
       % endfor
-#--- ADDED BUT NEED TO DISCUSS
-#id: Consent of Registered Agent review screen
-#event: review_Consent_of_Registered_Agent
-#question: |
-#  Review your answers
-#review:
-#  - Edit: filing_entity
-#    button: |
-#      **Filing entity**:
-#      ${ filing_entity }
-#  - Edit: effective_date
-#    button: |
-#      **Date of effective**:
-#      ${ effective_date }
-#  - Edit: filing_entity_1
-#    button: |
-#      **Filing entity 1**:
-#      ${ filing_entity_1 }
-#  - Edit: authorized_person
-#    button: |
-#      **Authorized Person**:
-#      ${ authorized_person }
-#  - Edit: effective_date_1
-#    button: |
-#      **Effective date 1**:
-#      ${ effective_date_1 }
-#  - Edit: users.revisit
-#    button: |
-#      **Users**
-#
-#      % for item in users:
-#        * ${ item }
-#      % endfor
-#  - Edit: signature0
-#    button: |
-#      **signature**:
-#      ${ signature0 }
-#  - Edit: signature1
-#    button: |
-#      **signature1**:
-#      ${ signature1 }
+      
+  - Edit: shareholder.revisit
+    button: |
+      **Shareholders:**
+      
+      Name | Address | Shares
+      -----------|------------|------------
+      % for item in shareholder:
+      ${ item.name } | ${ item.address } | ${ item.shares }
+      % endfor
+      
 ---
 continue button field: users.revisit
 question: |
@@ -492,6 +428,26 @@ subquestion: |
 ---
 table: director.table
 rows: director
+columns:
+  - address: |
+      row_item.address.block() if defined("row_item.address.address") else ""
+  - name: |
+      row_item.name.full() if defined("row_item.name.suffix") else ""
+edit:
+  - address.address
+  - name.suffix
+confirm: True
+---
+continue button field: shareholder.revisit
+question: |
+  Edit shareholder
+subquestion: |
+  ${ shareholder.table }
+
+  ${ shareholder.add_action() }
+---
+table: shareholder.table
+rows: shareholder
 columns:
   - address: |
       row_item.address.block() if defined("row_item.address.address") else ""

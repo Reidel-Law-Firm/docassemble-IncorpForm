@@ -686,9 +686,9 @@ attachments:
           TX
       - "organizer_address_zip": |
           77550
-      - "number_of_shares": ${ currency(number_of_shares) }
+      - "number_of_shares": ${ number_of_shares }
       - "par_value": ${ shares == 'par_value' }
-      - "share_par_value": ${ share_par_value }
+      - "share_par_value": ${ currency(share_par_value) }
       - "no_par_value": ${ shares == 'no_par_value' }
       - "supplemental": ${ supplemental }
       - "effective_SOS": ${ True }

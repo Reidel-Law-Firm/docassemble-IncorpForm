@@ -48,11 +48,11 @@ code: |
   al_form_type = 'other_form'
 ---
 objects:
-  - organizer: ALPeopleList.using(ask_number=True,target_number=1)
-  - director: ALPeopleList.using(there_are_any=True)
+  - organizers: ALPeopleList.using(ask_number=True,target_number=1)
+  - directors: ALPeopleList.using(there_are_any=True)
   - users: ALPeopleList.using(ask_number=True,target_number=1)
-  - shareholder: ALPeopleList.using(there_are_any=True)
-  - reimbursement: DAList.using(object_type=DAObject, there_are_any=True)
+  - shareholders: ALPeopleList.using(there_are_any=True)
+  - reimbursements: DAList.using(object_type=DAObject, there_are_any=True)
 ---
 sections:
   - review_incorp_form: Review your answers
@@ -74,20 +74,17 @@ code: |
   set_parts(subtitle=str(users))
   
   set_progress(22.00)
-  shareholder.there_are_any = True
-  shareholder.gather(complete_attribute = "gather_complete_1")
+  shareholders.there_are_any = True
+  shareholders.gather(complete_attribute = "gather_complete_1")
  
   set_progress(33.00)
   if needs_formal_reimbursement:
-     reimbursement[0].what
-     reimbursement_amount = sum(r.amount for r in reimbursement)
+     reimbursements[0].what
+     reimbursement_amount = sum(r.amount for r in reimbursements)
   
   set_progress(44.00)
-  director.there_are_any = True
-  director.gather(complete_attribute = "gather_complete")
-  
-  #organizer.gather()
-  #organizer[0].address.address
+  directors.there_are_any = True
+  directors.gather(complete_attribute = "gather_complete")
   
   set_progress(55.00)
   filing_entity
@@ -247,10 +244,10 @@ id: any other shareholders
 question: |
   Are there any other shareholders?
 subquestion: |
-  % if len(shareholder.elements) > 1:  
-  So far you have told us about ${comma_and_list(shareholder.complete_elements())}.
+  % if len(shareholders.elements) > 1:  
+  So far you have told us about ${comma_and_list(shareholders.complete_elements())}.
   % endif  
-yesno: shareholder.there_is_another 
+yesno: shareholders.there_is_another 
 ---
 generic object: ALIndividual
 question: |
@@ -265,8 +262,8 @@ subquestion: |
   
   Below you can itemize this reimbursement by selecting "${word("Add another")}".
 fields: 
-  - Describe your formation cost: reimbursement[i].what
-  - How much is this formation cost?: reimbursement[i].amount
+  - Describe your formation cost: reimbursements[i].what
+  - How much is this formation cost?: reimbursements[i].amount
     datatype: currency
 list collect: True
 ---
@@ -280,10 +277,10 @@ id: any other directors
 question: |
   Are there any other directors?
 subquestion: |
-  % if len(director.elements) > 1:  
-  So far you have told us about ${comma_and_list(director.complete_elements())}.
+  % if len(directors.elements) > 1:  
+  So far you have told us about ${comma_and_list(directors.complete_elements())}.
   % endif  
-yesno: director.there_is_another 
+yesno: directors.there_is_another 
 ---
 id: What is the filing entitys name
 question: |
@@ -297,7 +294,7 @@ fields:
 ---
 depends on: shareholder
 code: |
-  shares_issued = sum(x.shares for x in shareholder)
+  shares_issued = sum(x.shares for x in shareholders)
 ---
 id: authorize more shares
 question: |
@@ -407,23 +404,23 @@ review:
     button: |
       **Authorized Person**:
       ${ authorized_person }
-  - Edit: director.revisit
+  - Edit: directors.revisit
     button: |
       **Directors:**
       
       Name | Address 
       -----------|------------
-      % for item in director:
+      % for item in directors:
       ${ item.name } | ${ item.address }
       % endfor
       
-  - Edit: shareholder.revisit
+  - Edit: shareholders.revisit
     button: |
       **Shareholders:**
       
       Name | Address | Shares
       -----------|------------|------------
-      % for item in shareholder:
+      % for item in shareholders:
       ${ item.name } | ${ item.address } | ${ item.shares }
       % endfor
       
@@ -449,16 +446,16 @@ edit:
 confirm: True
 
 ---
-continue button field: director.revisit
+continue button field: directors.revisit
 question: |
-  Edit director
+  Edit directors
 subquestion: |
-  ${ director.table }
+  ${ directors.table }
 
-  ${ director.add_action() }
+  ${ directors.add_action() }
 ---
-table: director.table
-rows: director
+table: directors.table
+rows: directors
 columns:
   - address: |
       row_item.address.block() if defined("row_item.address.address") else ""
@@ -469,16 +466,16 @@ edit:
   - name.suffix
 confirm: True
 ---
-continue button field: shareholder.revisit
+continue button field: shareholders.revisit
 question: |
-  Edit shareholder
+  Edit shareholders
 subquestion: |
-  ${ shareholder.table }
+  ${ shareholders.table }
 
-  ${ shareholder.add_action() }
+  ${ shareholders.add_action() }
 ---
-table: shareholder.table
-rows: shareholder
+table: shareholders.table
+rows: shareholders
 columns:
   - address: |
       row_item.address.block() if defined("row_item.address.address") else ""
@@ -489,16 +486,16 @@ edit:
   - name.suffix
 confirm: True
 ---
-continue button field: organizer.revisit
+continue button field: organizers.revisit
 question: |
   Edit organizer
 subquestion: |
-  ${ organizer.table }
+  ${ organizers.table }
 
-  ${ organizer.add_action() }
+  ${ organizers.add_action() }
 ---
 table: shareholders_ledger.table
-rows: shareholder
+rows: shareholders
 columns:
   - Name of Shareholder: row_item.name.full()
   - Place of Residence: row_item.address.on_one_line()
@@ -508,8 +505,8 @@ columns:
       "N/A"
   - Number of shares held: row_item.shares
 ---
-table: organizer.table
-rows: organizer
+table: organizers.table
+rows: organizers
 columns:
   - address: |
       row_item.address.block() if defined("row_item.address.state") else ""
@@ -559,7 +556,7 @@ attachment:
   docx template file: incorp_form_attachment_addendum.docx
 ---
 code: |
-  incorp_form_attachment.overflow_fields['director'].overflow_trigger = 2
+  incorp_form_attachment.overflow_fields['directors'].overflow_trigger = 2
   incorp_form_attachment.overflow_fields.gathered = True
 ---
 attachment: 
@@ -658,33 +655,33 @@ attachments:
       - "user_address_street": ${ users[0].address.address }
       - "user_address_city": ${ users[0].address.city }
       - "user_address_zip": ${ users[0].address.zip }
-      - "director_name_first": ${ director[0].name.first }
-      - "director_name_middle": ${ director[0].name.middle }
-      - "director_name_last": ${ director[0].name.last }
-      - "director_name_suffix": ${ director[0].name.suffix }
-      - "director_address_street": ${ director[0].address.address }
-      - "director_address_city": ${ director[0].address.city }
-      - "director_address_state": ${ director[0].address.state }
-      - "director_address_zip": ${ director[0].address.zip }
-      - "director_address_country": ${ director[0].address.country }
-      - "director1_name_first": ${ director[1].name.first }
-      - "director1_name_middle": ${ director[1].name.middle }
-      - "director1_name_last": ${ director[1].name.last }
-      - "director1_name_suffix": ${ director[1].name.suffix }
-      - "director1_address_street": ${ director[1].address.address }
-      - "director1_address_city": ${ director[1].address.city }
-      - "director1_address_state": ${ director[1].address.state }
-      - "director1_address_zip": ${ director[1].address.zip }
-      - "director1_address_country": ${ director[1].address.country }
-      - "director2_name_first": ${ director[2].name.first }
-      - "director2_name_middle": ${ director[2].name.middle }
-      - "director2_name_last": ${ director[2].name.last }
-      - "director2_name_suffix": ${ director[2].name.suffix }
-      - "director2_address_street": ${ director[2].address.address }
-      - "director2_address_city": ${ director[2].address.city }
-      - "director2_address_state": ${ director[2].address.state }
-      - "director2_address_zip": ${ director[2].address.zip }
-      - "director2_address_country": ${ director[2].address.country }
+      - "director_name_first": ${ directors[0].name.first }
+      - "director_name_middle": ${ directors[0].name.middle }
+      - "director_name_last": ${ directors[0].name.last }
+      - "director_name_suffix": ${ directors[0].name.suffix }
+      - "director_address_street": ${ directors[0].address.address }
+      - "director_address_city": ${ directors[0].address.city }
+      - "director_address_state": ${ directors[0].address.state }
+      - "director_address_zip": ${ directors[0].address.zip }
+      - "director_address_country": ${ directors[0].address.country }
+      - "director1_name_first": ${ directors[1].name.first }
+      - "director1_name_middle": ${ directors[1].name.middle }
+      - "director1_name_last": ${ directors[1].name.last }
+      - "director1_name_suffix": ${ directors[1].name.suffix }
+      - "director1_address_street": ${ directors[1].address.address }
+      - "director1_address_city": ${ directors[1].address.city }
+      - "director1_address_state": ${ directors[1].address.state }
+      - "director1_address_zip": ${ directors[1].address.zip }
+      - "director1_address_country": ${ directors[1].address.country }
+      - "director2_name_first": ${ directors[2].name.first }
+      - "director2_name_middle": ${ directors[2].name.middle }
+      - "director2_name_last": ${ directors[2].name.last }
+      - "director2_name_suffix": ${ directors[2].name.suffix }
+      - "director2_address_street": ${ directors[2].address.address }
+      - "director2_address_city": ${ directors[2].address.city }
+      - "director2_address_state": ${ directors[2].address.state }
+      - "director2_address_zip": ${ directors[2].address.zip }
+      - "director2_address_country": ${ directors[2].address.country }
       - "organizer_name_full": |
           Schuyler Reidel - Reidel Law Firm
       - "organizer_address_street": | 

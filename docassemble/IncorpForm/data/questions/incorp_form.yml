@@ -328,30 +328,6 @@ fields:
     input type: area
     maxlength: 935
     required: False
-#---
-#id: Effective Date
-#question: |
-#  Effective Date
-#fields:
-#  - no label: effective_date
-#    datatype: radio
-#    choices:
-#      - When the document is filed by the secretary of state: effective_SOS
-#      - After the document is filed by the secretary of state, but not more than ninety (90) days from the date of signing: effective_before_90
-#      - Upon the occurrence of a future event or fact: effective_in_future
-#  - "Delayed date": date_effective_before_90
-#    datatype: date
-#    js show if: |
-#      val("effective_date") == "effective_before_90"
-#  - "90th day after date of signing": signing_date_plus_90
-#    datatype: date
-#    js show if: |
-#      val("effective_date") == "effective_in_future"  
-#  - "What event or fact will cause the document to take effect?": effective_event_explanation
-#    datatype: area
-#    maxlength: 252
-#    js show if: |
-#      val("effective_date") == "effective_in_future"  
 ---
 id: preview incorp_form
 question: |
@@ -556,28 +532,28 @@ attachment:
   docx template file: incorp_form_attachment_addendum.docx
 ---
 code: |
-  incorp_form_attachment.overflow_fields['directors'].overflow_trigger = 2
+  incorp_form_attachment.overflow_fields['directors'].overflow_trigger = 3
   incorp_form_attachment.overflow_fields.gathered = True
 ---
 attachment: 
   - name: extra_info
     variable name: extra_info[i]  
     filename: extra_info
-    skip undefined: True
+    #skip undefined: True
     docx template file: extra_info.docx
 ---
 attachment: 
   - name: first_meeting_minutes
     variable name: first_meeting_minutes[i]  
     filename: first_meeting_minutes
-    skip undefined: True
+    #skip undefined: True
     docx template file: first_meeting_minutes.docx
 ---
 attachment: 
   - name: bylaws
     variable name: bylaws[i]  
     filename: bylaws
-    skip undefined: True
+    #skip undefined: True
     docx template file: bylaws.docx
 ---
 attachments:

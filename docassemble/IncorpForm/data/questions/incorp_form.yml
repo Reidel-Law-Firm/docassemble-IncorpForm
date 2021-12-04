@@ -159,9 +159,12 @@ code: |
   x.name.first
   x.address.address
   x.shares
-  if x.ready_to_sign: 
-    x.signature
+  #if x.ready_to_sign: 
+  #  x.signature
   x.gather_complete_1 = True
+---
+code: |
+  signature_fields = ["users[0].signature"] + [sig.attr_name('signature') for sig in shareholders if sig.ready_to_sign]
 ---
 id: shareholder ready to sign
 generic object: ALIndividual
@@ -512,9 +515,6 @@ subquestion: |
   
 
 progress: 100
----
-code: |
-  signature_fields = ['users[0].signature']
 ---
 objects:
   - incorp_form_attachment: ALDocument.using(title="Incorporation Form", filename="201_boc.pdf", enabled=True, has_addendum=True)

@@ -219,8 +219,6 @@ fields:
 id: your address
 question: |
   What is your address?
-subquestion: |
-  What address should the court use to mail papers to you?
 fields:
   - Street address: users[0].address.address
     address autocomplete: True

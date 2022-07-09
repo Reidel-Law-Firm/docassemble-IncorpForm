@@ -2,9 +2,6 @@
 include:
   - docassemble.AssemblyLine:al_package.yml
 ---
-modules:
-  - docassemble.ReidelTheme.publish_to_webdav
----
 metadata:
   title: |
     Incorporation
@@ -14,11 +11,6 @@ metadata:
     <img height="50px" class="ma_icon" src="/packagestatic/docassemble.IncorpForm/Reidel_logo.svg"><div class="title"></div>
   title url: |
     https://www.reidellawfirm.com/
----
-default screen parts:
-  logo: |
-    <img height="50px" class="ma_icon" src="/packagestatic/docassemble.IncorpForm/Reidel_logo.svg"><div class="title"></div>
-
 ---
 features:
   bootstrap theme: bootstrap.min.css
@@ -122,23 +114,7 @@ code: |
   basic_questions_signature_flow
   loading_warning_screen
   set_progress(100)
-  incorp_form_publish
   incorp_form_download
----
-code: |
-  new_folder = get_new_bundle_path_name(al_recipient_bundle, filing_entity)
-  for document in al_recipient_bundle:
-    document['final'].path()
-    document.filename
-
-  try:
-    publish_to_webdav(al_recipient_bundle, 
-                      new_folder = new_folder,
-                      )
-    incorp_form_publish = True
-  except Exception as e:
-    publish_error = str(e)
-    incorp_form_publish = False
 ---
 comment: |
   This question is used to introduce your interview. Please customize
@@ -196,51 +172,6 @@ question: |
   Is ${x} ready to sign?
 yesno: x.ready_to_sign
 ---
-# Triggers some questions to ask for signatures on either desktop or mobile
-# Allows sending via text/email
-id: basic questions signature flow control
-code: |
-  if started_on_phone:
-    saw_signature_choice = True
-    users[0].signature
-    for shareholder in shareholders:
-      if shareholder.ready_to_sign:
-        shareholder.signature
-    # Add in logic for when we need additional signatures
-  else: 
-    # Three branches:
-    # 1. Decided to sign on the PC
-    # 2. Sent someone a link to sign the form
-    # 3. Used the QR code
-    saw_signature_choice
-    # Branch 1: PC
-    if signature_choice =='this device':
-      users[0].signature
-      for shareholder in shareholders:
-        if shareholder.ready_to_sign:
-          shareholder.signature
-    # Check for Branch 2 or 3
-    elif signature_choice == 'phone':
-      saw_signature_qrcode
-      # User will click next. link_cell will only be defined if they chose the texting option
-      if defined('link_cell') and link_cell and task_not_yet_performed('send signature link'): 
-        # They used the text option
-        send_sms(task='send signature link', to=link_cell,template=interview_link)
-        signature_wait_screen
-        users[0].signature
-        for shareholder in shareholders:
-          if shareholder.ready_to_sign:
-            shareholder.signature     
-      else: # Branch 3: They used the QR Code. No special screen, just continue
-        users[0].signature
-        for shareholder in shareholders:
-          if shareholder.ready_to_sign:
-            shareholder.signature    
-      # Show the follow-up either way
-      if device().is_mobile:
-        signature_phone_followup
-  basic_questions_signature_flow = True
----
 id: persons signature
 generic object: ALIndividual
 question: |
@@ -288,6 +219,8 @@ fields:
 id: your address
 question: |
   What is your address?
+subquestion: |
+  What address should the court use to mail papers to you?
 fields:
   - Street address: users[0].address.address
     address autocomplete: True
@@ -439,7 +372,6 @@ review:
     button: |
       **Supplemental**:
       ${ single_paragraph(supplemental) }
-    show if: supplemental
   - Edit: users.revisit
     button: |
       **Registered Agent:**
@@ -581,25 +513,8 @@ subquestion: |
 
   ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
   
-  % if incorp_form_publish:
-  A copy of your form has been delivered to Reidel Law Offices.
-  % else:
-  
-  #### Something went wrong when we tried to deliver a copy of your documents
-  to Reidel Law Offices. 
-  
-  ${ collapse_template( incorp_form_publish_error_template ) }
-  % endif
 
 progress: 100
----
-template: incorp_form_publish_error_template
-subject: |
-  Review error message
-content: |
-  ```
-  ${ str(publish_error) }
-  ```
 ---
 objects:
   - incorp_form_attachment: ALDocument.using(title="Incorporation Form", filename="201_boc.pdf", enabled=True, has_addendum=True)

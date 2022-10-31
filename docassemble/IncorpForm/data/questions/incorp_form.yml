@@ -169,7 +169,7 @@ sets:
     - users[0].name.first
     - users[0].name.last
 question:  |
-  Your Basic Information
+  Your Registered Agent Information
 fields:
   - code: |
       users[0].name_fields(person_or_business='unsure')
@@ -287,7 +287,7 @@ fields:
 ---
 id: your address
 question: |
-  What is your address?
+  Your Registered Agent Address
 fields:
   - Street address: users[0].address.address
     address autocomplete: True

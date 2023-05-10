@@ -61,6 +61,7 @@ objects:
   - users: ALPeopleList.using(ask_number=True,target_number=1)
   - shareholders: ALPeopleList.using(there_are_any=True)
   - reimbursements: DAList.using(object_type=DAObject, there_are_any=True)
+  - business: ALPeopleList
 ---
 sections:
   - review_incorp_form: Review your answers
@@ -80,6 +81,8 @@ code: |
   users[0].address.address
   users[0].ssn
   set_parts(subtitle=str(users))
+  
+  business[0].address.address
   
   set_progress(22.00)
   shareholders.there_are_any = True
@@ -139,6 +142,22 @@ code: |
   except Exception as e:
     publish_error = str(e)
     incorp_form_publish = False
+---
+id: business address
+sets:
+  - business[i].address.address
+question:  |
+  Principal Place of Business
+fields:
+  - Existing place: business[0].address
+    datatype: object
+    choices: 
+      - users[0].address 
+    object labeler: |
+      lambda y: y.on_one_line()
+    disable others: True
+  - code: |
+      business[0].address_fields(show_country=True)
 ---
 comment: |
   This question is used to introduce your interview. Please customize
@@ -745,7 +764,14 @@ attachments:
       - "director2_address_state": ${ directors[2].address.state }
       - "director2_address_zip": ${ directors[2].address.zip }
       - "director2_address_country": ${ directors[2].address.country }
-      - "organizer_name_full": |
+      - "business_address_mailing": ${ business[0].address.address }
+      - "business_address_city": ${ business[0].address.city }
+      - "business_address_state": ${ business[0].address.state }
+      - "business_address_zip": ${ business[0].address.zip }
+      - "business_address_country": ${ business[0].address.country }
+      - "organizer_name_full1": |
+          Schuyler Reidel - Reidel Law Firm
+      - "organizer_name_full2": |
           Schuyler Reidel - Reidel Law Firm
       - "organizer_address_street": | 
           527 21st St. #90
